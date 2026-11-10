@@ -54,6 +54,11 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 <section id="quiz" class="hidden"><h2>🧠 Quick Quiz</h2><div class="panel" id="quizBox"></div></section>
 <section id="practice" class="hidden"><h2>✍️ Spelling Practice</h2><div class="panel" id="practiceBox"></div></section>
 <section id="mistakes" class="hidden"><h2>🔁 වැරදුණු වචන</h2><p class="muted">වැරදුණු පිළිතුරු මෙහි සුරැකේ. නැවත පුහුණු වන්න.</p><div id="mistakeList"></div></section>
+<section id="sounds" class="hidden">
+  <h2>🔊 English Phonics & IPA Sounds</h2>
+  <p class="muted">British English pronunciation · සිංහල ශබ්ද සහිතව</p>
+  <div id="soundsContent"></div>
+</section>
 </main>
 <nav>
 <button class="active" data-tab="home" onclick="showTab('home')"><b>⌂</b>Home</button>
@@ -61,6 +66,7 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 <button data-tab="quiz" onclick="showTab('quiz')"><b>🧠</b>Quiz</button>
 <button data-tab="practice" onclick="showTab('practice')"><b>✍️</b>Practice</button>
 <button data-tab="mistakes" onclick="showTab('mistakes')"><b>🔁</b>Mistakes</button>
+ <button data-tab="sounds" onclick="showTab('sounds')"><b>🔊</b>Sounds</button>
 </nav>
 <script>
 const lessons=[
@@ -99,7 +105,7 @@ const practiceWords=[
 let state=JSON.parse(localStorage.getItem("esm-state")||'{"correct":0,"mistakes":[],"done":[]}');
 function save(){localStorage.setItem("esm-state",JSON.stringify(state));updateStats()}
 function updateStats(){document.getElementById("learned").textContent=state.correct;document.getElementById("mistakeCount").textContent=state.mistakes.length;document.getElementById("lessonCount").textContent=state.done.length+"/10"}
-function showTab(tab){document.querySelectorAll("main>section").forEach(s=>s.classList.add("hidden"));document.getElementById(tab).classList.remove("hidden");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));if(tab==="mistakes")renderMistakes();if(tab==="quiz")renderQuiz();if(tab==="practice")renderPractice()}
+function showTab(tab){document.querySelectorAll("main>section").forEach(s=>s.classList.add("hidden"));document.getElementById(tab).classList.remove("hidden");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));if(tab==="mistakes")renderMistakes();if(tab==="quiz")renderQuiz();if(tab==="practice")renderPractice();if(tab==="sounds")renderSounds()}
 function renderLessons(){document.getElementById("lessons").innerHTML=lessons.map((l,i)=>`<article class="lesson"><span class="tag">LESSON ${i+1}</span><h3>${l.t}</h3><b>${l.r}</b><p class="sinhala">${l.s}</p><div class="example">${l.e}</div><p class="muted">${l.x}</p><button class="secondary" onclick="completeLesson(${i})">${state.done.includes(i)?"✓ Completed":"Mark as learned"}</button></article>`).join("")}
 function completeLesson(i){if(!state.done.includes(i))state.done.push(i);save();renderLessons()}
 let qi=0;
@@ -111,7 +117,174 @@ function checkWord(){let w=practiceWords[pi%practiceWords.length],v=document.get
 function addMistake(word,why){if(!state.mistakes.some(m=>m.word===word))state.mistakes.push({word,why})}
 function renderMistakes(){let el=document.getElementById("mistakeList");el.innerHTML=state.mistakes.length?state.mistakes.map(m=>`<div class="lesson"><h3>${m.word}</h3><p class="muted">${m.why}</p><button class="secondary" onclick="removeMistake('${m.word}')">Review complete</button></div>`).join(""):'<div class="panel">තවම වැරදුණු වචන නැහැ. Quiz සහ Practice කරන්න.</div>'}
 function removeMistake(w){state.mistakes=state.mistakes.filter(m=>m.word!==w);save();renderMistakes()}
-renderLessons();updateStats();
+
+const soundSections = [
+{
+title: "1. IPA Vowel Sounds – ස්වර ශබ්ද",
+headers: ["IPA", "English patterns", "සිංහල ශබ්දය", "Examples"],
+rows: [
+["/iː/", "ee, ea, e, e-e, ie, ei, ey, y, i, oe, ique", "ඊ", "see, sea, me, these, piece, receive, key, happy, machine, phoenix, unique"],
+["/ɪ/", "i, y, e, ui, u", "ඉ", "sit, gym, pretty, biscuit, busy"],
+["/e/", "e, ea, a, ai", "එ", "bed, head, many, said"],
+["/æ/", "a", "ඇ", "cat, map, black, apple"],
+["/ʌ/", "u, o, ou", "අ", "cup, son, young, country"],
+["/ɒ/", "o, a", "ඔ", "hot, dog, watch, wash"],
+["/ʊ/", "u, oo, ou", "උ", "put, book, could, woman"],
+["/uː/", "oo, u-e, ue, ew, ou, ui, o, oe", "ඌ", "moon, flute, blue, few, soup, fruit, do, shoe"],
+["/ɑː/", "ar, a, al, au", "ආ", "car, father, calm, aunt"],
+["/ɔː/", "or, aw, au, al, ore, oor, our", "ඕ", "horse, saw, August, talk, more, door, four"],
+["/ɜː/", "ir, ur, er, ear, or", "අර්", "bird, turn, her, learn, word"],
+["/ə/", "a, e, o, u, er, ar, or", "අ (දුර්වල ශබ්දය)", "about, problem, lemon, support, teacher, sugar, doctor"]
+]
+},
+{
+title: "2. IPA Diphthongs – මිශ්‍ර ස්වර ශබ්ද",
+headers: ["IPA", "English patterns", "සිංහල ශබ්දය", "Examples"],
+rows: [
+["/eɪ/", "a, ai, ay, ei, ey, ea, eigh", "ඒ", "name, rain, day, eight, they, break"],
+["/aɪ/", "i, y, igh, ie, uy, ye", "අයි", "time, my, night, pie, buy, eye"],
+["/ɔɪ/", "oi, oy", "ඔයි", "coin, point, boy, toy"],
+["/əʊ/", "o, oa, ow, oe, ou, eau", "ඕ", "go, boat, snow, toe, soul, beau"],
+["/aʊ/", "ou, ow, ough", "අවු", "house, out, cow, now, bough"],
+["/ɪə/", "ear, eer, ere, ier", "ඉය(ර්)", "near, cheer, here, fierce"],
+["/eə/", "air, are, ear, ere, eir", "එය(ර්)", "hair, care, bear, there, their"],
+["/ʊə/", "ure, our, oor", "උය(ර්)", "pure, tourist, poor"]
+]
+},
+{
+title: "3. English Consonant Phonemes – ව්‍යංජන ශබ්ද",
+headers: ["IPA", "Patterns", "සිංහල ශබ්දය", "Examples"],
+rows: [
+["/p/", "p, pp", "ප්", "pen, apple"],
+["/b/", "b, bb", "බ්", "bat, rabbit"],
+["/t/", "t, tt", "ට්", "top, letter"],
+["/d/", "d, dd", "ඩ්", "dog, ladder"],
+["/k/", "c, k, ck, ch, qu", "ක්", "cat, kite, back, school, queen"],
+["/ɡ/", "g, gg, gh", "ග්", "go, egg, ghost"],
+["/f/", "f, ff, ph, gh", "ෆ්", "fish, coffee, phone, laugh"],
+["/v/", "v, ve", "ව්", "van, five"],
+["/θ/", "th", "ත් (දිව දත් අතර)", "think, three, bath"],
+["/ð/", "th", "ද් (දිව දත් අතර)", "this, that, mother"],
+["/s/", "s, ss, c, sc", "ස්", "sun, class, city, science"],
+["/z/", "z, zz, s, se", "ස (කටහඬ සහිත)", "zoo, buzz, rose, please"],
+["/ʃ/", "sh, ch, ti, ci, ssi", "ෂ්", "ship, machine, nation, special, mission"],
+["/ʒ/", "s, si, z, ge", "ෂ් (කටහඬ සහිත)", "vision, television, azure, beige"],
+["/h/", "h, wh (සමහර වචන)", "හ්", "hat, house, who"],
+["/tʃ/", "ch, tch, t", "ච්", "chair, watch, nature"],
+["/dʒ/", "j, g, dge, dj", "ජ්", "jam, giant, bridge, adjust"],
+["/m/", "m, mm, mb", "ම්", "man, summer, lamb"],
+["/n/", "n, nn, kn, gn", "න්", "nose, dinner, knee, gnome"],
+["/ŋ/", "ng; n before k/g", "ං", "sing, king, bank"],
+["/l/", "l, ll, le", "ල්", "leg, yellow, little"],
+["/r/", "r, rr, wr, rh", "ර්", "red, carry, write, rhyme"],
+["/j/", "y, u, eu", "ය්", "yes, music, Europe"],
+["/w/", "w, wh", "ව්", "wet, white"]
+]
+},
+{
+title: "4. Single Vowel Letters – A, E, I, O, U",
+headers: ["Letter", "IPA", "සිංහල ශබ්දය", "Examples"],
+rows: [
+["A", "/æ/", "ඇ", "apple, cat, man"],
+["A", "/eɪ/", "ඒ", "cake, name, day"],
+["A", "/ɑː/", "ආ", "car, park, father"],
+["A", "/ə/", "අ (දුර්වල)", "about, away, again"],
+["A", "/ɔː/", "ඕ", "all, ball, call"],
+["E", "/iː/", "ඊ", "me, he, she"],
+["E", "/ɪ/", "ඉ", "English, effect, begin"],
+["E", "/e/", "එ", "bed, pen, red"],
+["E", "/ə/", "අ (දුර්වල)", "problem, taken, open"],
+["I", "/aɪ/", "අයි", "ice, time, like"],
+["I", "/ɪ/", "ඉ", "sit, big, fish"],
+["I", "/iː/", "ඊ", "machine, police, ski"],
+["O", "/əʊ/", "ඕ", "go, home, open"],
+["O", "/ɒ/", "ඔ", "hot, box, dog"],
+["O", "/ʌ/", "අ", "love, come, money"],
+["O", "/uː/", "ඌ", "do, move, who"],
+["U", "/juː/", "යූ", "use, unit, music"],
+["U", "/ʌ/", "අ", "cup, bus, sun"],
+["U", "/ʊ/", "උ", "put, push, full"],
+["U", "/uː/", "ඌ", "rule, June, blue"]
+]
+},
+{
+title: "5. Single Consonant Letters – තනි ව්‍යංජන අකුරු",
+headers: ["Letter", "Sound", "සිංහල ශබ්දය", "Examples / Notes"],
+rows: [
+["B", "/b/", "බ්", "bat"],
+["C", "/k/ or /s/", "ක් / ස්", "cat, city"],
+["D", "/d/", "ඩ්", "dog"],
+["F", "/f/", "ෆ්", "fish"],
+["G", "/ɡ/ or /dʒ/", "ග් / ජ්", "go, giant"],
+["H", "/h/", "හ්", "hat"],
+["J", "/dʒ/", "ජ්", "jam"],
+["K", "/k/", "ක්", "kite"],
+["L", "/l/", "ල්", "leg"],
+["M", "/m/", "ම්", "man"],
+["N", "/n/", "න්", "nose"],
+["P", "/p/", "ප්", "pen"],
+["Q", "/kw/", "ක්ව", "queen"],
+["R", "/r/", "ර්", "red; final r often silent in British English"],
+["S", "/s/, /z/, /ʃ/", "ස් / ස / ෂ්", "sun, rose, sugar"],
+["T", "/t/", "ට්", "top"],
+["V", "/v/", "ව්", "van"],
+["W", "/w/", "ව්", "wet"],
+["X", "/ks/ or /ɡz/", "ක්ස් / ග්ස්", "box, exam"],
+["Y", "/j/", "ය්", "yes"],
+["Z", "/z/", "ස් (කටහඬ සහිත)", "zoo"]
+]
+},
+{
+title: "6. Consonant Combinations – අකුරු සංයෝග",
+headers: ["Combination", "IPA", "සිංහල ශබ්දය", "Examples / Notes"],
+rows: [
+["SH", "/ʃ/", "ෂ්", "ship, fish"],
+["CH", "/tʃ/", "ච්", "chair, much"],
+["TH", "/θ/ or /ð/", "ත් / ද්", "think, this"],
+["PH", "/f/", "ෆ්", "phone, photo"],
+["WH", "/w/ (usually)", "ව්", "what, white"],
+["CK", "/k/", "ක්", "back, clock"],
+["NG", "/ŋ/", "ං", "sing, king"],
+["NK", "/ŋk/", "ංක්", "bank, think"],
+["KN", "/n/", "න් (K නිහඬයි)", "knee, know"],
+["WR", "/r/", "ර් (W නිහඬයි)", "write, wrong"],
+["GH", "silent /f/ /ɡ/", "නිහඬ / ෆ් / ග්", "night, laugh, ghost"]
+]
+}
+];
+
+function renderSounds() {
+  const el = document.getElementById("soundsContent");
+  if (!el) return;
+
+  el.innerHTML = soundSections.map(section => `
+    <div class="lesson">
+      <h3>${section.title}</h3>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>${section.headers.map(h => `<th style="text-align:left;padding:8px;border-bottom:1px solid #aaa">${h}</th>`).join("")}</tr>
+          </thead>
+          <tbody>
+            ${section.rows.map(row => `
+              <tr>${row.map(cell => `<td style="padding:8px;border-bottom:1px solid #ddd;vertical-align:top">${cell}</td>`).join("")}</tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `).join("") + `
+    <div class="panel">
+      <b>මතක තබාගන්න:</b>
+      <p>සිංහල ශබ්ද මෙහි දක්වා ඇත්තේ ඉංග්‍රීසි උච්චාරණය තේරුම් ගැනීමට උපකාරී වන ආසන්න ශබ්ද ලෙසයි. ඒවා ඉංග්‍රීසි ශබ්දවලට හරියටම සමාන නොවේ.</p>
+      <p>British English උච්චාරණය ප්‍රදේශය සහ accent එක අනුව වෙනස් විය හැක. /ɪə/, /eə/, /ʊə/ වැනි ශබ්ද සමහර නවීන British accents වල වෙනස් ලෙස ඇසිය හැක.</p>
+      <p><b>වැදගත්:</b> TH අකුරු දෙකෙන් /θ/ සහ /ð/ ශබ්ද දෙකම ලැබේ. WH බොහෝ වචනවල /w/ වුවත් who වචනයේ /h/ වේ. GH සමහර වචනවල නිහඬ වන අතර laugh හි /f/ සහ ghost හි /ɡ/ වේ.</p>
+      <p>British English වල වචනයක අවසානයේ ඇති R අකුර බොහෝ විට උච්චාරණය නොකරයි; ඊළඟ වචනය ස්වරයකින් ආරම්භ වුවහොත් වෙනස් විය හැක.</p>
+    </div>
+  `;
+}
+
+ renderLessons();updateStats();
 if("serviceWorker" in navigator && location.protocol.startsWith("http"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 </script>
 </body></html>
