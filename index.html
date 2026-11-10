@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b72">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spelling Master">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>English Spelling Master</title>
+<style>
+:root{--navy:#173b72;--blue:#2764b0;--pale:#edf4ff;--ink:#17243a;--muted:#66758b;--line:#dce5f0;--green:#16794b;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:linear-gradient(135deg,#173b72,#286bb4);color:white;padding:24px 18px 20px;border-radius:0 0 22px 22px}
+header h1{font-size:24px;margin:0 0 6px}header p{margin:0;color:#e4efff;font-size:14px}
+main{max-width:760px;margin:auto;padding:16px 14px 92px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:-2px}
+.stat,.panel,.lesson,.word{background:white;border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat strong{display:block;font-size:22px;color:var(--navy)}.stat span{font-size:11px;color:var(--muted)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 3px calc(8px + env(safe-area-inset-bottom));z-index:5}
+nav button{border:0;background:none;color:var(--muted);font-size:11px;padding:5px 4px;flex:1}nav button.active{color:var(--blue);font-weight:700}
+nav b{display:block;font-size:19px;margin-bottom:2px}
+h2{font-size:19px;margin:20px 2px 10px}.muted{color:var(--muted);font-size:13px;line-height:1.5}
+.lesson{margin:10px 0}.lesson h3,.word h3{margin:0 0 7px;font-size:16px;color:var(--navy)}
+.sinhala{font-size:14px;line-height:1.6}.example{background:var(--pale);padding:9px 11px;border-radius:9px;margin-top:9px;font-size:13px}
+button.primary{background:var(--blue);color:white;border:0;border-radius:10px;padding:11px 15px;font-weight:650}
+button.secondary{background:var(--pale);color:var(--navy);border:1px solid #cbdcf3;border-radius:10px;padding:10px 13px}
+input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da;border-radius:10px;margin:10px 0}
+.option{display:block;width:100%;text-align:left;background:white;border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0;color:var(--ink);font-size:15px}
+.feedback{padding:12px;border-radius:10px;margin:10px 0;font-size:14px;line-height:1.5}.good{background:#eaf7f0;color:#145c3b}.bad{background:#fff0ef;color:#8f2019}
+.hidden{display:none!important}.tag{font-size:11px;background:var(--pale);color:var(--blue);padding:4px 8px;border-radius:20px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+</style>
+</head>
+<body>
+<header><h1>English Spelling Master</h1><p>Learn English spelling step by step · Sinhala explanations</p></header>
+<main>
+<section id="home">
+ <div class="stats">
+  <div class="stat"><strong id="learned">0</strong><span>Correct answers</span></div>
+  <div class="stat"><strong id="mistakeCount">0</strong><span>Words to review</span></div>
+  <div class="stat"><strong id="lessonCount">0/10</strong><span>Lessons completed</span></div>
+ </div>
+ <h2>අද ඉගෙනගනිමු</h2>
+ <div class="panel"><b>English spelling එක හරියට ඉගෙනගමු!</b><p class="muted">අකුරු එකතු කරන රටා, vowel sounds, silent letters සහ spelling rules උදාහරණ සමඟ ඉගෙනගන්න.</p><button class="primary" onclick="showTab('learn')">පාඩම් පටන් ගන්න</button></div>
+ <h2>පුහුණු කොටස්</h2>
+ <div class="lesson"><b>📘 Learn</b><p class="muted">Spelling rules සහ සිංහල පැහැදිලි කිරීම්</p></div>
+ <div class="lesson"><b>✍️ Spelling Practice</b><p class="muted">වචන අසා හෝ බලා නිවැරදිව ලියන්න</p></div>
+ <div class="lesson"><b>🧠 Quiz</b><p class="muted">ඔබ ඉගෙනගත් දේ පරීක්ෂා කරන්න</p></div>
+</section>
+<section id="learn" class="hidden"><h2>📘 Spelling Lessons</h2><p class="muted">මුල් පාඩම් 10 — British English ප්‍රධාන භාවිතය.</p><div id="lessons"></div></section>
+<section id="quiz" class="hidden"><h2>🧠 Quick Quiz</h2><div class="panel" id="quizBox"></div></section>
+<section id="practice" class="hidden"><h2>✍️ Spelling Practice</h2><div class="panel" id="practiceBox"></div></section>
+<section id="mistakes" class="hidden"><h2>🔁 වැරදුණු වචන</h2><p class="muted">වැරදුණු පිළිතුරු මෙහි සුරැකේ. නැවත පුහුණු වන්න.</p><div id="mistakeList"></div></section>
+</main>
+<nav>
+<button class="active" data-tab="home" onclick="showTab('home')"><b>⌂</b>Home</button>
+<button data-tab="learn" onclick="showTab('learn')"><b>📘</b>Learn</button>
+<button data-tab="quiz" onclick="showTab('quiz')"><b>🧠</b>Quiz</button>
+<button data-tab="practice" onclick="showTab('practice')"><b>✍️</b>Practice</button>
+<button data-tab="mistakes" onclick="showTab('mistakes')"><b>🔁</b>Mistakes</button>
+</nav>
+<script>
+const lessons=[
+{t:"1. Short Vowel Rule",r:"CVC — Consonant + Vowel + Consonant",s:"වචනයක vowel එකට පසුව consonant එකක් සහ අවසානයේ තවත් consonant එකක් තිබෙන විට, බොහෝ කෙටි වචනවල vowel එක කෙටි ශබ්දයක් දෙයි.",e:"cat = කැට් · bed = බෙඩ් · sit = සිට් · hot = හොට් · cup = කප්",x:"cat යන්නෙහි a කෙටි /æ/ ශබ්දයයි. ඒ නිසා සාමාන්‍යයෙන් CAT ලෙස ලියයි."},
+{t:"2. Silent E / Magic E",r:"a_e, e_e, i_e, o_e, u_e",s:"වචනයේ අග ඇති e බොහෝ විට ශබ්ද නොකරයි. එයට පෙර ඇති vowel එකේ නම කියන දිගු ශබ්දය ලබාදීමට උපකාරී වේ.",e:"cap → cape · kit → kite · hop → hope · cub → cube",x:"cap හි a කෙටි ශබ්දයයි. cape හි අවසාන e නිසා a දිගු /eɪ/ ශබ්දය වේ."},
+{t:"3. Vowel Teams",r:"ee, ea, ai, ay, oa, ow",s:"vowel අකුරු දෙකක් එකට පැමිණ එක් ප්‍රධාන vowel ශබ්දයක් ලබාදිය හැක. නමුත් එකම අකුරු යුගලයට විවිධ ශබ්ද තිබිය හැක.",e:"see / sea · rain / day · boat / snow",x:"ea හැමවිටම එකම ශබ්දය නොදෙයි: sea /siː/, bread /bred/."},
+{t:"4. Open Syllable",r:"Syllable ends in a vowel",s:"syllable එකක් vowel අකුරකින් අවසන් වන විට, බොහෝවිට vowel එක දිගු ශබ්දයක් දෙයි.",e:"me · go · hi · ba-by",x:"baby යන්න ba + by ලෙස syllables දෙකකට බෙදිය හැක."},
+{t:"5. Closed Syllable",r:"Syllable ends in a consonant",s:"syllable එකක් consonant අකුරකින් අවසන් වන විට, බොහෝවිට vowel එක කෙටි ශබ්දයක් දෙයි.",e:"cat · nap · rab-bit · pic-nic",x:"rabbit හි පළමු syllable එක rab යි. b අකුරින් වැසෙන නිසා a කෙටි ශබ්දයකි."},
+{t:"6. Soft and Hard C",r:"c = /k/ or /s/",s:"c පසුව e, i, y පැමිණි විට බොහෝවිට /s/ ශබ්දයයි. අනෙක් බොහෝ අවස්ථාවල /k/ ශබ්දයයි.",e:"city /s/ · cent /s/ · cat /k/ · cup /k/",x:"city හි c මෘදු /s/ ශබ්දය දෙයි. cat හි c තද /k/ ශබ්දය දෙයි."},
+{t:"7. Soft and Hard G",r:"g = /dʒ/ or /g/",s:"g පසුව e, i, y පැමිණි විට බොහෝවිට /dʒ/ ශබ්දයයි. නමුත් exceptions තිබේ.",e:"giant /dʒ/ · gem /dʒ/ · go /g/ · gum /g/",x:"get සහ give වැනි වචනවල g තද /g/ ශබ්දයයි."},
+{t:"8. CK Rule",r:"Short vowel + /k/ at word end",s:"කෙටි vowel ශබ්දයකට පසුව වචනය අවසානයේ /k/ ශබ්දය එන විට බොහෝවිට ck යොදයි.",e:"back · neck · sick · rock · duck",x:"back හි a කෙටි ශබ්දයකි. එයට පසුව /k/ ලිවීමට ck යොදා ඇත."},
+{t:"9. FLOSS Rule",r:"ff, ll, ss, zz",s:"එක් syllable වචනයක කෙටි vowel එකකට පසුව අවසානයේ f, l, s හෝ z ශබ්දය එන විට බොහෝවිට අකුර දෙගුණ කරයි.",e:"off · hill · miss · buzz",x:"miss හි කෙටි i ශබ්දයට පසුව ss යෙදේ. මෙය හැම වචනයකටම අදාළ නොවේ."},
+{t:"10. Drop Final E",r:"make + ing → making",s:"silent e එකකින් අවසන් වන බොහෝ වචනවලට vowel එකකින් පටන් ගන්නා suffix එකක් එකතු කරන විට අවසාන e ඉවත් කරයි.",e:"make → making · hope → hoping · use → using",x:"make + ing = making. e ඉවත් කරන්නේ suffix එකට පෙරයි. see → seeing වැනි exceptions ඇත."}
+];
+const questions=[
+{q:"නිවැරදි spelling එක තෝරන්න: බළලා",a:["kat","cat","caat"],c:1,why:"CVC රටාවේ a කෙටි ශබ්දයයි. නිවැරදි වචනය cat."},
+{q:"cap → ? (දිගු A ශබ්දය)",a:["cape","cap","capp"],c:0,why:"අවසාන silent e නිසා a දිගු /eɪ/ ශබ්දය වේ: cape."},
+{q:"නිවැරදි වචනය තෝරන්න",a:["rane","rain","rayn"],c:1,why:"මෙහි /eɪ/ ශබ්දය ai මගින් ලියා ඇත: rain."},
+{q:"city හි C ශබ්දය කුමක්ද?",a:["/k/","/s/"],c:1,why:"c පසුව i ඇති නිසා city හි c සාමාන්‍යයෙන් /s/ ශබ්දයයි."},
+{q:"make + ing = ?",a:["makeing","making","makking"],c:1,why:"suffix එකට පෙර අවසාන silent e ඉවත් කරයි: making."},
+{q:"නිවැරදි spelling එක තෝරන්න",a:["running","runing","runnning"],c:0,why:"run + ing: කෙටි vowel + consonant නිසා n දෙගුණ කරයි: running."},
+{q:"FLOSS rule එකට ගැළපෙන වචනය",a:["mis","miss","misse"],c:1,why:"කෙටි vowel එකකට පසු අවසානයේ s ශබ්දය එන නිසා miss."}
+];
+const practiceWords=[
+{w:"RUNNING",si:"දුවමින් / දිවීම",p:"run + ing: කෙටි vowel + අවසාන consonant නිසා n දෙගුණ කරයි."},
+{w:"MAKING",si:"සාදමින්",p:"make + ing: අවසාන silent e ඉවත් කරයි."},
+{w:"BABIES",si:"ළදරුවන්",p:"baby + s: consonant + y අවසානයේ නම් y → ies."},
+{w:"CITIES",si:"නගර",p:"city + s: y වෙනුවට ies යොදයි."},
+{w:"HAPPINESS",si:"සතුට",p:"happy + ness: consonant + y නම් y → i."},
+{w:"RECEIVE",si:"ලැබීම",p:"ei/ie රටාවේ exception එකක්. c පසුව ei: receive."},
+{w:"BEAUTIFUL",si:"ලස්සන",p:"bea + u + ti + ful. අකුරු අනුපිළිවෙළ පුහුණු කරන්න."},
+{w:"SUPPLIER",si:"සැපයුම්කරු",p:"sup + pli + er. supplier යන වචනයේ pp දෙගුණ වේ."},
+{w:"STOPPED",si:"නැවැත්වූවා",p:"stop + ed: කෙටි vowel + consonant නිසා p දෙගුණ කරයි."},
+{w:"CAREFUL",si:"ප්‍රවේශම් සහිත",p:"care + ful: මෙහි care හි අවසාන e තබා ගනී."}
+];
+let state=JSON.parse(localStorage.getItem("esm-state")||'{"correct":0,"mistakes":[],"done":[]}');
+function save(){localStorage.setItem("esm-state",JSON.stringify(state));updateStats()}
+function updateStats(){document.getElementById("learned").textContent=state.correct;document.getElementById("mistakeCount").textContent=state.mistakes.length;document.getElementById("lessonCount").textContent=state.done.length+"/10"}
+function showTab(tab){document.querySelectorAll("main>section").forEach(s=>s.classList.add("hidden"));document.getElementById(tab).classList.remove("hidden");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));if(tab==="mistakes")renderMistakes();if(tab==="quiz")renderQuiz();if(tab==="practice")renderPractice()}
+function renderLessons(){document.getElementById("lessons").innerHTML=lessons.map((l,i)=>`<article class="lesson"><span class="tag">LESSON ${i+1}</span><h3>${l.t}</h3><b>${l.r}</b><p class="sinhala">${l.s}</p><div class="example">${l.e}</div><p class="muted">${l.x}</p><button class="secondary" onclick="completeLesson(${i})">${state.done.includes(i)?"✓ Completed":"Mark as learned"}</button></article>`).join("")}
+function completeLesson(i){if(!state.done.includes(i))state.done.push(i);save();renderLessons()}
+let qi=0;
+function renderQuiz(){let q=questions[qi%questions.length];document.getElementById("quizBox").innerHTML=`<p class="muted">Question ${(qi%questions.length)+1} of ${questions.length}</p><h3>${q.q}</h3>${q.a.map((a,i)=>`<button class="option" onclick="answerQuiz(${i})">${a}</button>`).join("")}<div id="qfeedback"></div>`}
+function answerQuiz(i){let q=questions[qi%questions.length],ok=i===q.c;let f=document.getElementById("qfeedback");f.className="feedback "+(ok?"good":"bad");f.innerHTML=(ok?"නිවැරදියි! ":"නැවත බලමු. ")+"<br>"+q.why;if(ok)state.correct++;else addMistake(q.a[q.c],q.why);save();f.innerHTML+=`<p><button class="primary" onclick="qi++;renderQuiz()">ඊළඟ ප්‍රශ්නය</button></p>`;document.querySelectorAll("#quizBox .option").forEach(b=>b.disabled=true)}
+let pi=0;
+function renderPractice(){let w=practiceWords[pi%practiceWords.length];document.getElementById("practiceBox").innerHTML=`<p class="muted">Word ${(pi%practiceWords.length)+1} of ${practiceWords.length}</p><h3>මෙම වචනය ලියන්න:</h3><div style="font-size:25px;font-weight:800;color:#173b72">${w.w}</div><p class="muted">සිංහල තේරුම: ${w.si}</p><input id="typed" type="text" autocapitalize="off" autocomplete="off" placeholder="Type the English word"><button class="primary" onclick="checkWord()">පරීක්ෂා කරන්න</button><div id="pfeedback"></div>`}
+function checkWord(){let w=practiceWords[pi%practiceWords.length],v=document.getElementById("typed").value.trim().toLowerCase(),f=document.getElementById("pfeedback");let ok=v===w.w.toLowerCase();f.className="feedback "+(ok?"good":"bad");f.innerHTML=(ok?"නිවැරදියි!":"නිවැරදි spelling එක: "+w.w)+"<br>"+w.p;if(ok)state.correct++;else addMistake(w.w,w.p);save();f.innerHTML+=`<p><button class="primary" onclick="pi++;renderPractice()">ඊළඟ වචනය</button></p>`}
+function addMistake(word,why){if(!state.mistakes.some(m=>m.word===word))state.mistakes.push({word,why})}
+function renderMistakes(){let el=document.getElementById("mistakeList");el.innerHTML=state.mistakes.length?state.mistakes.map(m=>`<div class="lesson"><h3>${m.word}</h3><p class="muted">${m.why}</p><button class="secondary" onclick="removeMistake('${m.word}')">Review complete</button></div>`).join(""):'<div class="panel">තවම වැරදුණු වචන නැහැ. Quiz සහ Practice කරන්න.</div>'}
+function removeMistake(w){state.mistakes=state.mistakes.filter(m=>m.word!==w);save();renderMistakes()}
+renderLessons();updateStats();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
+</body></html>
