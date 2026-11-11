@@ -105,7 +105,7 @@ const vocabularyPacks = [
     {id:99,word:"choose",sound:"චූස්",meaning:"තෝරාගන්නවා"},
     {id:100,word:"city",sound:"සිටි",meaning:"නගරය"},
     ,{id:101,word:"class",sound:"ක්ලාස්",meaning:"පන්තිය"}
-    ,{id:102,word:"clean",sound:"ක්ලීන්",meaning:"පිරිසිදු"}
+    ,{id:102,word:"clean",sound:"ක්ලීන්",meaning:"පිරිසිදු"},
     ,{id:103,word:"clear",sound:"ක්ලියර්",meaning:"පැහැදිලි"}
     ,{id:104,word:"close",sound:"ක්ලෝස්",meaning:"වසා දමනවා / ළඟ"}
     ,{id:105,word:"clothes",sound:"ක්ලෝදස්",meaning:"ඇඳුම්"}
