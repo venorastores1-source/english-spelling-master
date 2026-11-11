@@ -1,4 +1,4 @@
-const CACHE='spelling-master-v3';
+const CACHE='spelling-master-v4';
 
 const FILES=[
   './',
