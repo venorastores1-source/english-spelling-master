@@ -32,6 +32,26 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 .feedback{padding:12px;border-radius:10px;margin:10px 0;font-size:14px;line-height:1.5}.good{background:#eaf7f0;color:#145c3b}.bad{background:#fff0ef;color:#8f2019}
 .hidden{display:none!important}.tag{font-size:11px;background:var(--pale);color:var(--blue);padding:4px 8px;border-radius:20px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+
+.vocab-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 2px 0;
+}
+
+.vocab-row h3,
+.vocab-row p {
+  margin: 2px 0;
+}
+
+.vocab-row button {
+  flex-shrink: 0;
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
 </style>
 </head>
 <body>
@@ -255,23 +275,31 @@ ${pending.map(w=>`
             onchange="selectVocab(${w.id},this.checked)">
           තෝරන්න
         </label>
-       <h3>${isVocabFieldVisible(w.id,"word") ? w.word : ""}</h3>
-<button class="secondary"
-  onclick="toggleVocabField(${w.id},'word')">
-  ${isVocabFieldVisible(w.id,"word") ? "Hide Word" : "Show Word"}
-</button>
+    
+<div class="vocab-row">
+  <h3>${isVocabFieldVisible(w.id,"word") ? w.word : ""}</h3>
+  <button class="secondary"
+    onclick="toggleVocabField(${w.id},'word')">
+    ${isVocabFieldVisible(w.id,"word") ? "Hide Word" : "Show Word"}
+  </button>
+</div>
 
-<p class="sinhala">${isVocabFieldVisible(w.id,"sound") ? w.sound : ""}</p>
-<button class="secondary"
-  onclick="toggleVocabField(${w.id},'sound')">
-  ${isVocabFieldVisible(w.id,"sound") ? "Hide Sinhala Sound" : "Show Sinhala Sound"}
-</button>
+<div class="vocab-row">
+  <p class="sinhala">${isVocabFieldVisible(w.id,"sound") ? w.sound : ""}</p>
+  <button class="secondary"
+    onclick="toggleVocabField(${w.id},'sound')">
+    ${isVocabFieldVisible(w.id,"sound") ? "Hide Sinhala Sound" : "Show Sinhala Sound"}
+  </button>
+</div>
 
-<p>${isVocabFieldVisible(w.id,"meaning") ? w.meaning : ""}</p>
-<button class="secondary"
-  onclick="toggleVocabField(${w.id},'meaning')">
-  ${isVocabFieldVisible(w.id,"meaning") ? "Hide Meaning" : "Show Meaning"}
-</button>
+<div class="vocab-row">
+  <p>${isVocabFieldVisible(w.id,"meaning") ? w.meaning : ""}</p>
+  <button class="secondary"
+    onclick="toggleVocabField(${w.id},'meaning')">
+    ${isVocabFieldVisible(w.id,"meaning") ? "Hide Meaning" : "Show Meaning"}
+  </button>
+</div>
+
       </article>
     `).join("")}
    
