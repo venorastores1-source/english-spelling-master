@@ -93,6 +93,17 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
   <h2>✅ Learned List</h2>
   <div id="learnedWordsContent"></div>
 </section>
+  <section id="spelling700" class="hidden">
+  <h2>⌨️ Spelling Practice</h2>
+  <p>Learned List එකේ වචනවලින් පමණක් පුහුණු වෙන්න.</p>
+  <div id="spelling700Content"></div>
+</section>
+
+<section id="wordQuiz700" class="hidden">
+  <h2>🧩 Word Quiz</h2>
+  <p>Learned List එකේ වචනවලින් නිවැරදි පිළිතුර තෝරන්න.</p>
+  <div id="wordQuiz700Content"></div>
+</section>
 </main>
 <nav>
 <button class="active" data-tab="home" onclick="showTab('home')"><b>⌂</b>Home</button>
@@ -103,6 +114,9 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
  <button data-tab="sounds" onclick="showTab('sounds')"><b>🔊</b>Sounds</button>
 <button data-tab="words" onclick="showTab('words')">📚 Words</button>
 <button data-tab="learnedWords" onclick="showTab('learnedWords')">✅ Learned</button>
+  <button data-tab="spelling700" onclick="showTab('spelling700')">⌨️ Spelling 700</button>
+
+<button data-tab="wordQuiz700" onclick="showTab('wordQuiz700')">🧩 Word Quiz 700</button>
 </nav>
  <script src="./words.js"></script>
 <script>
@@ -158,6 +172,8 @@ function showTab(tab){
 
   if(tab==="words")renderWords();
   if(tab==="learnedWords")renderLearnedWords();
+if(tab==="spelling700")renderSpelling700();
+if(tab==="wordQuiz700")renderWordQuiz700();
 }
 function renderLessons(){document.getElementById("lessons").innerHTML=lessons.map((l,i)=>`<article class="lesson"><span class="tag">LESSON ${i+1}</span><h3>${l.t}</h3><b>${l.r}</b><p class="sinhala">${l.s}</p><div class="example">${l.e}</div><p class="muted">${l.x}</p><button class="secondary" onclick="completeLesson(${i})">${state.done.includes(i)?"✓ Completed":"Mark as learned"}</button></article>`).join("")}
 function completeLesson(i){if(!state.done.includes(i))state.done.push(i);save();renderLessons()}
@@ -170,6 +186,143 @@ function checkWord(){let w=practiceWords[pi%practiceWords.length],v=document.get
 function addMistake(word,why){if(!state.mistakes.some(m=>m.word===word))state.mistakes.push({word,why})}
 function renderMistakes(){let el=document.getElementById("mistakeList");el.innerHTML=state.mistakes.length?state.mistakes.map(m=>`<div class="lesson"><h3>${m.word}</h3><p class="muted">${m.why}</p><button class="secondary" onclick="removeMistake('${m.word}')">Review complete</button></div>`).join(""):'<div class="panel">තවම වැරදුණු වචන නැහැ. Quiz සහ Practice කරන්න.</div>'}
 function removeMistake(w){state.mistakes=state.mistakes.filter(m=>m.word!==w);save();renderMistakes()}
+  // ===== LEARNED WORD SPELLING & QUIZ =====
+
+let spelling700Index = 0;
+let wordQuiz700Index = 0;
+
+function getLearnedPracticeWords(){
+  const words = getAllVocabulary();
+  return words.filter(w => vocabState.learned.includes(w.id));
+}
+
+// SPELLING PRACTICE
+
+function renderSpelling700(){
+  const words = getLearnedPracticeWords();
+  const el = document.getElementById("spelling700Content");
+
+  if(!words.length){
+    el.innerHTML = '<div class="panel">Learned List එකේ තවම වචන නැහැ. මුලින් වචන Learned කරන්න.</div>';
+    return;
+  }
+
+  const w = words[spelling700Index % words.length];
+
+  el.innerHTML = `
+    <div class="panel">
+      <p>වචන ${words.length} අතරින් පුහුණුව</p>
+      <h2>${w.meaning}</h2>
+      <p class="sinhala">${w.sound}</p>
+
+      <input id="spelling700Answer"
+        type="text"
+        placeholder="English spelling එක ටයිප් කරන්න"
+        autocomplete="off">
+
+      <button class="primary" onclick="checkSpelling700(${w.id})">
+        Check Answer
+      </button>
+
+      <div id="spelling700Feedback"></div>
+    </div>
+  `;
+}
+
+function checkSpelling700(id){
+  const words = getLearnedPracticeWords();
+  const w = words.find(x => x.id === id);
+  if(!w) return;
+
+  const answer = document.getElementById("spelling700Answer").value.trim().toLowerCase();
+  const feedback = document.getElementById("spelling700Feedback");
+
+  if(answer === w.word.toLowerCase()){
+    state.correct++;
+    feedback.innerHTML = '<p class="feedback good">නිවැරදියි! ✓</p>';
+  }else{
+    addMistake(w.word,w.meaning);
+    feedback.innerHTML = `<p class="feedback bad">වැරදියි. නිවැරදි spelling එක: ${w.word}</p>`;
+  }
+
+  save();
+
+  feedback.innerHTML += `
+    <button class="primary" onclick="spelling700Index++;renderSpelling700()">
+      ඊළඟ වචනය
+    </button>
+  `;
+}
+
+// WORD QUIZ
+
+function renderWordQuiz700(){
+  const words = getLearnedPracticeWords();
+  const el = document.getElementById("wordQuiz700Content");
+
+  if(!words.length){
+    el.innerHTML = '<div class="panel">Learned List එකේ තවම වචන නැහැ. මුලින් වචන Learned කරන්න.</div>';
+    return;
+  }
+
+  if(words.length < 4){
+    el.innerHTML = '<div class="panel">Quiz එක සඳහා Learned වචන අවම වශයෙන් 4ක් අවශ්‍යයි.</div>';
+    return;
+  }
+
+  const w = words[wordQuiz700Index % words.length];
+
+  const options = [w,...words.filter(x=>x.id!==w.id)
+    .sort(()=>Math.random()-0.5).slice(0,3)]
+    .sort(()=>Math.random()-0.5);
+
+  el.innerHTML = `
+    <div class="panel">
+      <p>නිවැරදි English Word එක තෝරන්න.</p>
+      <h2>${w.meaning}</h2>
+      <p class="sinhala">${w.sound}</p>
+
+      <div id="wordQuiz700Options">
+        ${options.map(x=>`
+          <button class="secondary"
+            onclick="answerWordQuiz700(${w.id},${x.id})">
+            ${x.word}
+          </button>
+        `).join("")}
+      </div>
+
+      <div id="wordQuiz700Feedback"></div>
+    </div>
+  `;
+}
+
+function answerWordQuiz700(questionId,answerId){
+  const words = getLearnedPracticeWords();
+  const w = words.find(x=>x.id===questionId);
+  const answer = words.find(x=>x.id===answerId);
+  if(!w || !answer) return;
+
+  const feedback = document.getElementById("wordQuiz700Feedback");
+
+  document.querySelectorAll("#wordQuiz700Options button")
+    .forEach(b=>b.disabled=true);
+
+  if(w.id===answer.id){
+    state.correct++;
+    feedback.innerHTML='<p class="feedback good">නිවැරදියි! ✓</p>';
+  }else{
+    addMistake(w.word,w.meaning);
+    feedback.innerHTML=`<p class="feedback bad">වැරදියි. නිවැරදි පිළිතුර: ${w.word}</p>`;
+  }
+
+  save();
+
+  feedback.innerHTML+=`
+    <button class="primary" onclick="wordQuiz700Index++;renderWordQuiz700()">
+      ඊළඟ ප්‍රශ්නය
+    </button>
+  `;
+}
  // ===== VOCABULARY SYSTEM =====
 
 let vocabState = JSON.parse(
