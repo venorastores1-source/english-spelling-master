@@ -1,4 +1,4 @@
-const CACHE='spelling-master-v4';
+const CACHE='spelling-master-v5';
 
 const FILES=[
   './',
@@ -6,7 +6,9 @@ const FILES=[
   './words.js',
   './manifest.webmanifest',
   './icon-192.png',
+  './ipa-data.js',
   './icon-512.png'
+  
 ];
 
 self.addEventListener('install',e=>
