@@ -407,6 +407,8 @@ function renderSoundPractice(){
     </div>
   `;
 
+  console.log("Vocabulary loaded:", getAllVocabulary().length);
+console.log("Achieve data:", getAllVocabulary().find(w => w.id === 6));
   showSoundPracticeQuestion();
 }
 
