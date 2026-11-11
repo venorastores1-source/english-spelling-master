@@ -104,6 +104,11 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
   <p>Learned List එකේ වචනවලින් නිවැරදි පිළිතුර තෝරන්න.</p>
   <div id="wordQuiz700Content"></div>
 </section>
+  <section id="soundPractice" class="hidden">
+  <h2>🔤 IPA Sound Practice</h2>
+  <p>Learning List + Learned List දෙකේම වචන පුහුණු කරන්න.</p>
+  <div id="soundPracticeContent"></div>
+</section>
 </main>
 <nav>
 <button class="active" data-tab="home" onclick="showTab('home')"><b>⌂</b>Home</button>
@@ -112,6 +117,9 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 <button data-tab="practice" onclick="showTab('practice')"><b>✍️</b>Practice</button>
 <button data-tab="mistakes" onclick="showTab('mistakes')"><b>🔁</b>Mistakes</button>
  <button data-tab="sounds" onclick="showTab('sounds')"><b>🔊</b>Sounds</button>
+  <button data-tab="soundPractice" onclick="showTab('soundPractice')">
+  🔤 Sound Practice
+</button>
 <button data-tab="words" onclick="showTab('words')">📚 Words</button>
 <button data-tab="learnedWords" onclick="showTab('learnedWords')">✅ Learned</button>
   <button data-tab="spelling700" onclick="showTab('spelling700')">⌨️ Spelling 700</button>
@@ -174,6 +182,7 @@ function showTab(tab){
   if(tab==="learnedWords")renderLearnedWords();
 if(tab==="spelling700")renderSpelling700();
 if(tab==="wordQuiz700")renderWordQuiz700();
+  if(tab==="soundPractice")renderSoundPractice();
 }
 function renderLessons(){document.getElementById("lessons").innerHTML=lessons.map((l,i)=>`<article class="lesson"><span class="tag">LESSON ${i+1}</span><h3>${l.t}</h3><b>${l.r}</b><p class="sinhala">${l.s}</p><div class="example">${l.e}</div><p class="muted">${l.x}</p><button class="secondary" onclick="completeLesson(${i})">${state.done.includes(i)?"✓ Completed":"Mark as learned"}</button></article>`).join("")}
 function completeLesson(i){if(!state.done.includes(i))state.done.push(i);save();renderLessons()}
