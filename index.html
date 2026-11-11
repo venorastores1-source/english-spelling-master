@@ -33,21 +33,25 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 .hidden{display:none!important}.tag{font-size:11px;background:var(--pale);color:var(--blue);padding:4px 8px;border-radius:20px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
 
+
 .vocab-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  column-gap: 8px;
   margin: 2px 0;
 }
 
 .vocab-row h3,
 .vocab-row p {
   margin: 2px 0;
+  min-width: 0;
 }
 
 .vocab-row button {
-  flex-shrink: 0;
+  width: auto;
+  flex: none;
+  white-space: nowrap;
   padding: 6px 9px;
   font-size: 12px;
 }
