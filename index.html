@@ -127,6 +127,7 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 <button data-tab="wordQuiz700" onclick="showTab('wordQuiz700')">🧩 Word Quiz 700</button>
 </nav>
  <script src="./words.js"></script>
+  <script src="./ipa-data.js"></script>
 <script>
 const lessons=[
 {t:"1. Short Vowel Rule",r:"CVC — Consonant + Vowel + Consonant",s:"වචනයක vowel එකට පසුව consonant එකක් සහ අවසානයේ තවත් consonant එකක් තිබෙන විට, බොහෝ කෙටි වචනවල vowel එක කෙටි ශබ්දයක් දෙයි.",e:"cat = කැට් · bed = බෙඩ් · sit = සිට් · hot = හොට් · cup = කප්",x:"cat යන්නෙහි a කෙටි /æ/ ශබ්දයයි. ඒ නිසා සාමාන්‍යයෙන් CAT ලෙස ලියයි."},
@@ -338,9 +339,10 @@ function answerWordQuiz700(questionId,answerId){
 let soundPracticeIndex = 0;
 
 function getSoundPracticeWords(ipa){
-  return getAllVocabulary().filter(w =>
-    Array.isArray(w.ipa) && w.ipa.includes(ipa)
-  );
+  return getAllVocabulary().filter(w => {
+    const phonemes = vocabularyIPA[w.id] || w.ipa || [];
+    return phonemes.includes(ipa);
+  });
 }
 
 function renderSoundPractice(){
