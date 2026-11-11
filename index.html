@@ -421,6 +421,38 @@ function renderSoundPractice(){
 console.log("Achieve data:", getAllVocabulary().find(w => w.id === 6));
   showSoundPracticeQuestion();
 }
+  // ===== RANDOM SOUND PRACTICE =====
+let soundPracticeRandomPools = {};
+
+function getRandomSoundPracticeWord(ipa, words){
+
+  if(!soundPracticeRandomPools[ipa] ||
+     soundPracticeRandomPools[ipa].length === 0){
+
+    let pool = [...words];
+
+    // Shuffle
+    for(let i = pool.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    // කලින් වටයේ අවසන් වචනයම නැවත මුලට ඒම වළක්වන්න
+    const previous = soundPracticeRandomPools[ipa + "_last"];
+
+    if(pool.length > 1 && pool[0].id === previous){
+      [pool[0], pool[1]] = [pool[1], pool[0]];
+    }
+
+    soundPracticeRandomPools[ipa] = pool;
+  }
+
+  const w = soundPracticeRandomPools[ipa].pop();
+
+  soundPracticeRandomPools[ipa + "_last"] = w.id;
+
+  return w;
+}
 
 function showSoundPracticeQuestion(){
   const select = document.getElementById("soundPracticeSelect");
@@ -438,7 +470,7 @@ function showSoundPracticeQuestion(){
     return;
   }
 
-  const w = words[soundPracticeIndex % words.length];
+  const w = getRandomSoundPracticeWord(ipa, words);
 
   el.innerHTML = `
     <hr>
