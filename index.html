@@ -332,6 +332,150 @@ function answerWordQuiz700(questionId,answerId){
     </button>
   `;
 }
+
+  // ===== IPA SOUND PRACTICE =====
+
+let soundPracticeIndex = 0;
+
+function getSoundPracticeWords(ipa){
+  return getAllVocabulary().filter(w =>
+    Array.isArray(w.ipa) && w.ipa.includes(ipa)
+  );
+}
+
+function renderSoundPractice(){
+  const el = document.getElementById("soundPracticeContent");
+  if(!el) return;
+
+  const sounds = [
+    {ipa:"/iː/", sinhala:"ඊ"},
+    {ipa:"/ɪ/", sinhala:"ඉ"},
+    {ipa:"/e/", sinhala:"එ"},
+    {ipa:"/æ/", sinhala:"ඇ"},
+    {ipa:"/ʌ/", sinhala:"අ"},
+    {ipa:"/ɒ/", sinhala:"ඔ"},
+    {ipa:"/ʊ/", sinhala:"උ"},
+    {ipa:"/uː/", sinhala:"ඌ"},
+    {ipa:"/ɑː/", sinhala:"ආ"},
+    {ipa:"/ɔː/", sinhala:"ඕ"},
+    {ipa:"/ɜː/", sinhala:"අර්"},
+    {ipa:"/ə/", sinhala:"අ (දුර්වල)"},
+    {ipa:"/eɪ/", sinhala:"ඒ"},
+    {ipa:"/aɪ/", sinhala:"අයි"},
+    {ipa:"/ɔɪ/", sinhala:"ඔයි"},
+    {ipa:"/əʊ/", sinhala:"ඕ"},
+    {ipa:"/aʊ/", sinhala:"අවු"},
+    {ipa:"/ɪə/", sinhala:"ඉය(ර්)"},
+    {ipa:"/eə/", sinhala:"එය(ර්)"},
+    {ipa:"/ʊə/", sinhala:"උය(ර්)"},
+    {ipa:"/p/", sinhala:"ප්"},
+    {ipa:"/b/", sinhala:"බ්"},
+    {ipa:"/t/", sinhala:"ට්"},
+    {ipa:"/d/", sinhala:"ඩ්"},
+    {ipa:"/k/", sinhala:"ක්"},
+    {ipa:"/ɡ/", sinhala:"ග්"},
+    {ipa:"/f/", sinhala:"ෆ්"},
+    {ipa:"/v/", sinhala:"ව්"},
+    {ipa:"/θ/", sinhala:"ත්"},
+    {ipa:"/ð/", sinhala:"ද්"},
+    {ipa:"/s/", sinhala:"ස්"},
+    {ipa:"/z/", sinhala:"ස"},
+    {ipa:"/ʃ/", sinhala:"ෂ්"},
+    {ipa:"/ʒ/", sinhala:"ෂ් (කටහඬ සහිත)"},
+    {ipa:"/h/", sinhala:"හ්"},
+    {ipa:"/tʃ/", sinhala:"ච්"},
+    {ipa:"/dʒ/", sinhala:"ජ්"},
+    {ipa:"/m/", sinhala:"ම්"},
+    {ipa:"/n/", sinhala:"න්"},
+    {ipa:"/ŋ/", sinhala:"ං"},
+    {ipa:"/l/", sinhala:"ල්"},
+    {ipa:"/r/", sinhala:"ර්"},
+    {ipa:"/j/", sinhala:"ය්"},
+    {ipa:"/w/", sinhala:"ව්"}
+  ];
+
+  el.innerHTML = `
+    <div class="panel">
+      <label>IPA Sound තෝරන්න</label>
+      <select id="soundPracticeSelect"
+        onchange="soundPracticeIndex=0;showSoundPracticeQuestion()">
+        ${sounds.map(s=>`
+          <option value="${s.ipa}">${s.ipa} — ${s.sinhala}</option>
+        `).join("")}
+      </select>
+      <div id="soundPracticeQuestion"></div>
+    </div>
+  `;
+
+  showSoundPracticeQuestion();
+}
+
+function showSoundPracticeQuestion(){
+  const select = document.getElementById("soundPracticeSelect");
+  const el = document.getElementById("soundPracticeQuestion");
+  if(!select || !el) return;
+
+  const ipa = select.value;
+  const words = getSoundPracticeWords(ipa);
+
+  if(!words.length){
+    el.innerHTML = `
+      <p>මෙම ශබ්දයට IPA දත්ත සහිත වචන තවම නැහැ.</p>
+      <p>වචනවලට IPA එකතු කළ පසු මෙහි පෙන්වයි.</p>
+    `;
+    return;
+  }
+
+  const w = words[soundPracticeIndex % words.length];
+
+  el.innerHTML = `
+    <hr>
+    <h2>${ipa}</h2>
+    <h3>${w.sound}</h3>
+    <p>${w.meaning}</p>
+
+    <input id="soundPracticeAnswer"
+      type="text"
+      placeholder="English spelling එක ටයිප් කරන්න"
+      autocomplete="off">
+
+    <button class="primary"
+      onclick="checkSoundPractice('${ipa}',${w.id})">
+      Check Answer
+    </button>
+
+    <div id="soundPracticeFeedback"></div>
+  `;
+}
+
+function checkSoundPractice(ipa,id){
+  const words = getSoundPracticeWords(ipa);
+  const w = words.find(x=>x.id===id);
+  if(!w) return;
+
+  const answer = document.getElementById("soundPracticeAnswer")
+    .value.trim().toLowerCase();
+
+  const feedback = document.getElementById("soundPracticeFeedback");
+
+  if(answer === w.word.toLowerCase()){
+    state.correct++;
+    feedback.innerHTML='<p class="feedback good">නිවැරදියි! ✓</p>';
+  }else{
+    addMistake(w.word,w.meaning);
+    feedback.innerHTML=
+      `<p class="feedback bad">වැරදියි. නිවැරදි spelling එක: ${w.word}</p>`;
+  }
+
+  save();
+
+  feedback.innerHTML += `
+    <button class="primary"
+      onclick="soundPracticeIndex++;showSoundPracticeQuestion()">
+      ඊළඟ වචනය
+    </button>
+  `;
+}
  // ===== VOCABULARY SYSTEM =====
 
 let vocabState = JSON.parse(
