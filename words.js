@@ -104,7 +104,6 @@ const vocabularyPacks = [
     {id:98,word:"child",sound:"චයිල්ඩ්",meaning:"දරුවා"},
     {id:99,word:"choose",sound:"චූස්",meaning:"තෝරාගන්නවා"},
     {id:100,word:"city",sound:"සිටි",meaning:"නගරය"}
-  ]
     ,{id:101,word:"class",sound:"ක්ලාස්",meaning:"පන්තිය"}
     ,{id:102,word:"clean",sound:"ක්ලීන්",meaning:"පිරිසිදු"}
     ,{id:103,word:"clear",sound:"ක්ලියර්",meaning:"පැහැදිලි"}
