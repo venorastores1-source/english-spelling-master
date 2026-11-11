@@ -704,5 +704,7 @@ const vocabularyPacks = [
     ,{id:697,word:"correspondence",sound:"කොරස්පොන්ඩන්ස්",meaning:"ලිපි හුවමාරුව"}
     ,{id:698,word:"criteria",sound:"ක්‍රයිටීරියා",meaning:"නිර්ණායක"}
     ,{id:699,word:"deadline",sound:"ඩෙඩ්ලයින්",meaning:"අවසන් දිනය / කාලසීමාව"}
-    ,{id:700,word:"decision",sound:"ඩිසිෂන්",meaning:"තීරණය"}}
+    ,{id:700,word:"decision",sound:"ඩිසිෂන්",meaning:"තීරණය"}
+    ]
+  }
 ];
