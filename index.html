@@ -150,8 +150,17 @@ function removeMistake(w){state.mistakes=state.mistakes.filter(m=>m.word!==w);sa
 
 let vocabState = JSON.parse(
   localStorage.getItem("esm-vocab-state") ||
-  '{"learned":[],"selected":[]}'
+  '{"learned":[],"selected":[],"fieldDefaults":{"word":true,"sound":true,"meaning":true},"fieldOverrides":{}}'
 );
+
+vocabState.fieldDefaults ||= {
+  word: true,
+  sound: true,
+  meaning: true
+};
+
+vocabState.fieldOverrides ||= {};
+
 
 function saveVocab(){
   localStorage.setItem("esm-vocab-state",JSON.stringify(vocabState));
@@ -159,6 +168,39 @@ function saveVocab(){
 
 function getAllVocabulary(){
   return vocabularyPacks.flatMap(pack=>pack.words);
+}
+
+ function isVocabFieldVisible(id,field){
+  const key = id + "_" + field;
+
+  if(Object.prototype.hasOwnProperty.call(vocabState.fieldOverrides,key)){
+    return vocabState.fieldOverrides[key];
+  }
+
+  return vocabState.fieldDefaults[field];
+}
+
+function setAllVocabFields(field,visible){
+  vocabState.fieldDefaults[field] = visible;
+
+  Object.keys(vocabState.fieldOverrides).forEach(key=>{
+    if(key.endsWith("_" + field)){
+      delete vocabState.fieldOverrides[key];
+    }
+  });
+
+  saveVocab();
+  renderWords();
+}
+
+function toggleVocabField(id,field){
+  const key = id + "_" + field;
+  const current = isVocabFieldVisible(id,field);
+
+  vocabState.fieldOverrides[key] = !current;
+
+  saveVocab();
+  renderWords();
 }
 
 function renderWords(){
@@ -169,6 +211,37 @@ function renderWords(){
     <p>මුළු වචන: ${words.length}</p>
     <p>පාඩම් කළ: ${vocabState.learned.length}</p>
     <p>ඉතිරි: ${pending.length}</p>
+    <div class="panel">
+  <h3>Word Display Settings</h3>
+  <button class="secondary"
+    onclick="setAllVocabFields('word',false)">
+    Hide All Words
+  </button>
+  <button class="secondary"
+    onclick="setAllVocabFields('word',true)">
+    Show All Words
+  </button>
+
+  <h3>Sinhala Sound Settings</h3>
+  <button class="secondary"
+    onclick="setAllVocabFields('sound',false)">
+    Hide All Sinhala Sounds
+  </button>
+  <button class="secondary"
+    onclick="setAllVocabFields('sound',true)">
+    Show All Sinhala Sounds
+  </button>
+
+  <h3>Meaning Settings</h3>
+  <button class="secondary"
+    onclick="setAllVocabFields('meaning',false)">
+    Hide All Meanings
+  </button>
+  <button class="secondary"
+    onclick="setAllVocabFields('meaning',true)">
+    Show All Meanings
+  </button>
+</div>
 
 <button class="primary" onclick="markSelectedLearned()">
   OK - පාඩම් කළ වචන වෙත යවන්න
@@ -182,9 +255,23 @@ ${pending.map(w=>`
             onchange="selectVocab(${w.id},this.checked)">
           තෝරන්න
         </label>
-        <h3>${w.word}</h3>
-        <p class="sinhala">${w.sound}</p>
-        <p>${w.meaning}</p>
+       <h3>${isVocabFieldVisible(w.id,"word") ? w.word : ""}</h3>
+<button class="secondary"
+  onclick="toggleVocabField(${w.id},'word')">
+  ${isVocabFieldVisible(w.id,"word") ? "Hide Word" : "Show Word"}
+</button>
+
+<p class="sinhala">${isVocabFieldVisible(w.id,"sound") ? w.sound : ""}</p>
+<button class="secondary"
+  onclick="toggleVocabField(${w.id},'sound')">
+  ${isVocabFieldVisible(w.id,"sound") ? "Hide Sinhala Sound" : "Show Sinhala Sound"}
+</button>
+
+<p>${isVocabFieldVisible(w.id,"meaning") ? w.meaning : ""}</p>
+<button class="secondary"
+  onclick="toggleVocabField(${w.id},'meaning')">
+  ${isVocabFieldVisible(w.id,"meaning") ? "Hide Meaning" : "Show Meaning"}
+</button>
       </article>
     `).join("")}
    
