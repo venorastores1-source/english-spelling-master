@@ -77,6 +77,8 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 <button data-tab="practice" onclick="showTab('practice')"><b>✍️</b>Practice</button>
 <button data-tab="mistakes" onclick="showTab('mistakes')"><b>🔁</b>Mistakes</button>
  <button data-tab="sounds" onclick="showTab('sounds')"><b>🔊</b>Sounds</button>
+<button data-tab="words" onclick="showTab('words')">📚 Words</button>
+<button data-tab="learnedWords" onclick="showTab('learnedWords')">✅ Learned</button>
 </nav>
 <script>
 const lessons=[
@@ -115,7 +117,20 @@ const practiceWords=[
 let state=JSON.parse(localStorage.getItem("esm-state")||'{"correct":0,"mistakes":[],"done":[]}');
 function save(){localStorage.setItem("esm-state",JSON.stringify(state));updateStats()}
 function updateStats(){document.getElementById("learned").textContent=state.correct;document.getElementById("mistakeCount").textContent=state.mistakes.length;document.getElementById("lessonCount").textContent=state.done.length+"/10"}
-function showTab(tab){document.querySelectorAll("main>section").forEach(s=>s.classList.add("hidden"));document.getElementById(tab).classList.remove("hidden");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));if(tab==="mistakes")renderMistakes();if(tab==="quiz")renderQuiz();if(tab==="practice")renderPractice();if(tab==="sounds")renderSounds()}
+function showTab(tab){
+  document.querySelectorAll("main>section").forEach(s=>s.classList.add("hidden"));
+
+  document.getElementById(tab).classList.remove("hidden");
+
+  document.querySelectorAll("nav button").forEach(b=>
+    b.classList.toggle("active",b.dataset.tab===tab)
+  );
+
+  if(tab==="mistakes")renderMistakes();
+  if(tab==="quiz")renderQuiz();
+  if(tab==="practice")renderPractice();
+  if(tab==="sounds")renderSounds();
+}
 function renderLessons(){document.getElementById("lessons").innerHTML=lessons.map((l,i)=>`<article class="lesson"><span class="tag">LESSON ${i+1}</span><h3>${l.t}</h3><b>${l.r}</b><p class="sinhala">${l.s}</p><div class="example">${l.e}</div><p class="muted">${l.x}</p><button class="secondary" onclick="completeLesson(${i})">${state.done.includes(i)?"✓ Completed":"Mark as learned"}</button></article>`).join("")}
 function completeLesson(i){if(!state.done.includes(i))state.done.push(i);save();renderLessons()}
 let qi=0;
