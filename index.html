@@ -349,6 +349,11 @@ const vocabularyIPA = {
 let soundPracticeIndex = 0;
 
 function getSoundPracticeWords(ipa){
+  console.log("Selected IPA:", ipa);
+  console.log("Total words:", getAllVocabulary().length);
+  console.log("IPA data:", vocabularyIPA);
+  console.log("Word 6:", vocabularyIPA[6]);
+
   return getAllVocabulary().filter(w => {
     const phonemes = vocabularyIPA[w.id] || w.ipa || [];
     return phonemes.includes(ipa);
