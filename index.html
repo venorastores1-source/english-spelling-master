@@ -80,6 +80,7 @@ input[type=text]{width:100%;font-size:17px;padding:12px;border:1px solid #b9c8da
 <button data-tab="words" onclick="showTab('words')">📚 Words</button>
 <button data-tab="learnedWords" onclick="showTab('learnedWords')">✅ Learned</button>
 </nav>
+ <script src="./words.js"></script>
 <script>
 const lessons=[
 {t:"1. Short Vowel Rule",r:"CVC — Consonant + Vowel + Consonant",s:"වචනයක vowel එකට පසුව consonant එකක් සහ අවසානයේ තවත් consonant එකක් තිබෙන විට, බොහෝ කෙටි වචනවල vowel එක කෙටි ශබ්දයක් දෙයි.",e:"cat = කැට් · bed = බෙඩ් · sit = සිට් · hot = හොට් · cup = කප්",x:"cat යන්නෙහි a කෙටි /æ/ ශබ්දයයි. ඒ නිසා සාමාන්‍යයෙන් CAT ලෙස ලියයි."},
@@ -130,6 +131,9 @@ function showTab(tab){
   if(tab==="quiz")renderQuiz();
   if(tab==="practice")renderPractice();
   if(tab==="sounds")renderSounds();
+
+  if(tab==="words")renderWords();
+  if(tab==="learnedWords")renderLearnedWords();
 }
 function renderLessons(){document.getElementById("lessons").innerHTML=lessons.map((l,i)=>`<article class="lesson"><span class="tag">LESSON ${i+1}</span><h3>${l.t}</h3><b>${l.r}</b><p class="sinhala">${l.s}</p><div class="example">${l.e}</div><p class="muted">${l.x}</p><button class="secondary" onclick="completeLesson(${i})">${state.done.includes(i)?"✓ Completed":"Mark as learned"}</button></article>`).join("")}
 function completeLesson(i){if(!state.done.includes(i))state.done.push(i);save();renderLessons()}
@@ -142,6 +146,94 @@ function checkWord(){let w=practiceWords[pi%practiceWords.length],v=document.get
 function addMistake(word,why){if(!state.mistakes.some(m=>m.word===word))state.mistakes.push({word,why})}
 function renderMistakes(){let el=document.getElementById("mistakeList");el.innerHTML=state.mistakes.length?state.mistakes.map(m=>`<div class="lesson"><h3>${m.word}</h3><p class="muted">${m.why}</p><button class="secondary" onclick="removeMistake('${m.word}')">Review complete</button></div>`).join(""):'<div class="panel">තවම වැරදුණු වචන නැහැ. Quiz සහ Practice කරන්න.</div>'}
 function removeMistake(w){state.mistakes=state.mistakes.filter(m=>m.word!==w);save();renderMistakes()}
+ // ===== VOCABULARY SYSTEM =====
+
+let vocabState = JSON.parse(
+  localStorage.getItem("esm-vocab-state") ||
+  '{"learned":[],"selected":[]}'
+);
+
+function saveVocab(){
+  localStorage.setItem("esm-vocab-state",JSON.stringify(vocabState));
+}
+
+function getAllVocabulary(){
+  return vocabularyPacks.flatMap(pack=>pack.words);
+}
+
+function renderWords(){
+  const words=getAllVocabulary();
+  const pending=words.filter(w=>!vocabState.learned.includes(w.id));
+
+  document.getElementById("wordsContent").innerHTML=`
+    <p>මුළු වචන: ${words.length}</p>
+    <p>පාඩම් කළ: ${vocabState.learned.length}</p>
+    <p>ඉතිරි: ${pending.length}</p>
+    ${pending.map(w=>`
+      <article class="lesson">
+        <label>
+          <input type="checkbox"
+            ${vocabState.selected.includes(w.id)?"checked":""}
+            onchange="selectVocab(${w.id},this.checked)">
+          තෝරන්න
+        </label>
+        <h3>${w.word}</h3>
+        <p class="sinhala">${w.sound}</p>
+        <p>${w.meaning}</p>
+      </article>
+    `).join("")}
+    <button class="primary" onclick="markSelectedLearned()">
+      OK - පාඩම් කළ වචන වෙත යවන්න
+    </button>
+  `;
+}
+
+function selectVocab(id,checked){
+  if(checked){
+    if(!vocabState.selected.includes(id))vocabState.selected.push(id);
+  }else{
+    vocabState.selected=vocabState.selected.filter(x=>x!==id);
+  }
+  saveVocab();
+}
+
+function markSelectedLearned(){
+  vocabState.selected.forEach(id=>{
+    if(!vocabState.learned.includes(id)){
+      vocabState.learned.push(id);
+    }
+  });
+  vocabState.selected=[];
+  saveVocab();
+  renderWords();
+  renderLearnedWords();
+}
+
+function renderLearnedWords(){
+  const words=getAllVocabulary();
+  const learned=words.filter(w=>vocabState.learned.includes(w.id));
+
+  document.getElementById("learnedWordsContent").innerHTML=
+    learned.length ? learned.map(w=>`
+      <article class="lesson">
+        <h3>${w.word}</h3>
+        <p class="sinhala">${w.sound}</p>
+        <p>${w.meaning}</p>
+        <button class="secondary"
+          onclick="returnToLearning(${w.id})">
+          Learning List වෙත ආපසු යවන්න
+        </button>
+      </article>
+    `).join("") :
+    '<div class="panel">තවම පාඩම් කළ වචන නැහැ.</div>';
+}
+
+function returnToLearning(id){
+  vocabState.learned=vocabState.learned.filter(x=>x!==id);
+  saveVocab();
+  renderWords();
+  renderLearnedWords();
+}
 
 const soundSections = [
 {
